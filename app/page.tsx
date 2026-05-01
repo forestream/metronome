@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Metronome } from "@forestream/metronome";
 
 export default function Home() {
-  const [bpm, setBpm] = useState(120);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [bpm, setBpm] = useState(72);
+  const metronome = useRef(new Metronome(bpm));
 
   const handleBpmChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextBpm = Math.min(240, Math.max(1, Number(event.target.value)));
@@ -12,48 +13,23 @@ export default function Home() {
   };
 
   const handlePlay = () => {
-    setIsPlaying((prev) => !prev);
+    const playing = metronome.current.startedAt !== null;
+    if (playing) {
+      metronome.current.stop();
+    } else {
+      metronome.current.start();
+    }
   };
 
-  const start = useRef<number | null>(null);
   const lightRef = useRef<HTMLDivElement>(null);
-  const flickerRef = useRef<number>(0);
-  const raf = useRef<number | null>(null);
-  const hz = useRef<number>(0);
+
   useEffect(() => {
-    const step: FrameRequestCallback = (time) => {
-      if (!isPlaying) {
-        if (raf.current) {
-          cancelAnimationFrame(raf.current);
-          raf.current = null;
-          flickerRef.current = 0;
-          start.current = null;
-          if (lightRef.current) {
-            lightRef.current.style.opacity = "0";
-          }
-        }
-        return;
-      }
-
-      if (start.current === null) {
-        start.current = time;
-      }
-      const elapsed = time - start.current;
-
-      if (elapsed < 1000) hz.current += 1;
-
-      flickerRef.current = Math.sin(
-        ((elapsed / 1000) * 2 * Math.PI * bpm) / 60,
-      );
-      if (lightRef.current) {
-        lightRef.current.style.opacity = `${flickerRef.current}`;
-      }
-
-      raf.current = requestAnimationFrame(step);
-    };
-
-    raf.current = requestAnimationFrame(step);
-  }, [bpm, isPlaying]);
+    metronome.current.callbacks.add((tick) => {
+      if (!lightRef.current) return;
+      if (tick * 1000 > 950) lightRef.current.style.opacity = "1";
+      else lightRef.current.style.opacity = "0";
+    });
+  }, [bpm]);
 
   return (
     <div className="mx-auto max-w-[800px] px-4 w-full min-h-dvh">
@@ -82,7 +58,7 @@ export default function Home() {
           onClick={handlePlay}
           className="bg-amber-600 text-white rounded-md w-full py-2 text-2xl"
         >
-          {isPlaying ? "Stop" : "Play"}
+          Play
         </button>
       </div>
     </div>
