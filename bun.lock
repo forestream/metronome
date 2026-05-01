@@ -5,7 +5,7 @@
     "": {
       "name": "metronome",
       "dependencies": {
-        "@forestream/metronome": "^1.0.2",
+        "@forestream/metronome": "^1.0.5",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",
         "next": "^16.2.4",
@@ -87,7 +87,7 @@
 
     "@eslint/plugin-kit": ["@eslint/plugin-kit@0.4.1", "", { "dependencies": { "@eslint/core": "^0.17.0", "levn": "^0.4.1" } }, "sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA=="],
 
-    "@forestream/metronome": ["@forestream/metronome@1.0.2", "", {}, "sha512-dvT8zjdaFvPtI5rqUQ//c3xI60ChF2phESA45TVZGliTInHp9iwMrHywowQbXmt9MW16rF6254WRu4iSsdRJ0A=="],
+    "@forestream/metronome": ["@forestream/metronome@1.0.5", "", {}, "sha512-PMZLd+y0ZR9yJSz6Z1P2zQxQzrJ3nZ0hgmAHY6EgW37UVxL7pY24ZZiSDuox/8q2vaYvMIzd0ansFabPVThNVg=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 

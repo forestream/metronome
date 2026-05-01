@@ -1,11 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Metronome } from "@forestream/metronome";
 
 export default function Home() {
+  const [isOscillating, setIsOscillating] = useState(false);
   const [bpm, setBpm] = useState(72);
-  const metronome = useRef(new Metronome(bpm));
+  const [fps, setFps] = useState(0);
+  const metronome = useMemo(() => new Metronome(bpm), [bpm]);
+
+  const stopMetronome = useCallback(() => {
+    metronome.stop();
+    setIsOscillating(false);
+  }, [metronome]);
+
+  const startMetronome = useCallback(() => {
+    metronome.start();
+    setIsOscillating(true);
+  }, [metronome]);
+
+  useEffect(() => {
+    if (!metronome) return;
+    const stopPrev = stopMetronome;
+    return () => stopPrev();
+  }, [metronome, stopMetronome]);
 
   const handleBpmChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextBpm = Math.min(240, Math.max(1, Number(event.target.value)));
@@ -13,23 +31,31 @@ export default function Home() {
   };
 
   const handlePlay = () => {
-    const playing = metronome.current.startedAt !== null;
+    const playing = metronome.startedAt !== null;
     if (playing) {
-      metronome.current.stop();
+      stopMetronome();
     } else {
-      metronome.current.start();
+      startMetronome();
     }
   };
 
   const lightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    metronome.current.callbacks.add((tick) => {
+    metronome.callbacks.add((tick) => {
       if (!lightRef.current) return;
-      if (tick * 1000 > 950) lightRef.current.style.opacity = "1";
+      if (tick > 0.95) lightRef.current.style.opacity = "1";
       else lightRef.current.style.opacity = "0";
     });
-  }, [bpm]);
+  }, [metronome]);
+
+  useEffect(() => {
+    if (!metronome) return;
+    const interval = setInterval(() => {
+      setFps(metronome.fps ?? 0);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [metronome]);
 
   return (
     <div className="mx-auto max-w-[800px] px-4 w-full min-h-dvh">
@@ -41,6 +67,7 @@ export default function Home() {
         />
       </div>
       <div className="flex flex-col gap-2 items-center justify-center w-full">
+        <div className="text-sm text-gray-500">FPS: {fps}</div>
         <div className="flex gap-2 w-full items-center">
           <label htmlFor="bpm">BPM</label>
           <input
@@ -58,7 +85,7 @@ export default function Home() {
           onClick={handlePlay}
           className="bg-amber-600 text-white rounded-md w-full py-2 text-2xl"
         >
-          Play
+          {isOscillating ? "Stop" : "Play"}
         </button>
       </div>
     </div>
